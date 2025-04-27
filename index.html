@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vocabulary Game</title>
+</head>
+<body style="text-align:center; font-size:40px;">
+
+  <div id="setup">
+    <h2>Paste Vocabulary</h2>
+    <textarea id="vocabInput" rows="20" cols="20" style="font-size:36px; width:90%;"></textarea><br><br>
+    <button onclick="loadVocab()" style="font-size:40px;">Load Vocabulary</button>
+  </div>
+
+  <div id="repeatChoice" style="display:none;">
+    <p>Repeat only the last 50 words?</p>
+    <button onclick="startGame(true)" style="font-size:40px;">Yes</button>
+    <button onclick="startGame(false)" style="font-size:40px;">No</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <p id="speakWord" style="font-size:60px; font-weight:bold;"></p>
+    <p id="contextDisplay" style="font-size:36px; font-style:italic;"></p>
+    <br>
+    <button onclick="showAnswer()" style="font-size:40px;">Next</button>
+    <div id="answerSection" style="display:none;">
+      <p id="translationDisplay" style="font-size:48px; font-weight:bold;"></p>
+      <input id="userInput" placeholder="Type the original word" style="font-size:40px; width:80%;"><br><br>
+      <button onclick="checkAnswer()" style="font-size:40px;">Submit</button>
+    </div>
+    <p id="feedback" style="font-weight:bold; font-size:40px;"></p>
+    <br>
+    <button onclick="skipWord()" style="font-size:40px;">Skip</button>
+    <button onclick="speakWord()" style="font-size:40px;">Repeat</button>
+  </div>
+
+  <script>
+    let vocab = [];
+    let current = null;
+    let history = [];
+    let useRecent = false;
+    let repeatStack = [];
+
+    function loadVocab() {
+      const lines = document.getElementById('vocabInput').value.split('\n');
+      vocab = lines.map(line => {
+        let [first, rest] = line.split(' , ');
+        if (!rest) return null;
+        let [trans, context] = rest.split(' . ');
+        return { word: first.trim(), translation: trans.trim(), context: context ? context.trim() : '' };
+      }).filter(Boolean);
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('repeatChoice').style.display = 'block';
+    }
+
+    function startGame(repeatLast50) {
+      useRecent = repeatLast50;
+      if (useRecent) {
+        vocab = vocab.slice(-50);
+      }
+      document.getElementById('repeatChoice').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      nextWord();
+    }
+
+    function speakWord() {
+      if (!current) return;
+      let msg = new SpeechSynthesisUtterance(current.word);
+      msg.lang = 'en-US';
+      msg.rate = 0.8;
+      msg.pitch = 1;
+      speechSynthesis.cancel(); // stop any ongoing speech
+      speechSynthesis.speak(msg);
+    }
+
+    function nextWord() {
+      document.getElementById('answerSection').style.display = 'none';
+      document.getElementById('feedback').innerText = '';
+      current = repeatStack.length > 0 ? repeatStack.pop() : vocab[Math.floor(Math.random() * vocab.length)];
+      history.push(current);
+      document.getElementById('speakWord').innerText = current.word;
+      document.getElementById('contextDisplay').innerText = current.context ? current.context : '';
+      speakWord();
+    }
+
+    function showAnswer() {
+      document.getElementById('translationDisplay').innerText = current.translation;
+      document.getElementById('userInput').value = '';
+      document.getElementById('answerSection').style.display = 'block';
+    }
+
+    function checkAnswer() {
+      const userAnswer = document.getElementById('userInput').value.trim();
+      if (userAnswer.toLowerCase() === current.word.toLowerCase()) {
+        document.getElementById('feedback').innerText = "Correct!";
+        nextWord();
+      } else {
+        document.getElementById('feedback').innerText = "Try again.";
+      }
+    }
+
+    function skipWord() {
+      nextWord();
+    }
+  </script>
+</body>
+</html>
