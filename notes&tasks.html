@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Notes to Myself</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      max-width: 100vw;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: #075e54;
+      color: white;
+      padding: 15px 20px;
+      font-size: 20px;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      z-index: 1000;
+      position: relative;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .header-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .messages-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%23e5ddd5"/><circle cx="30" cy="30" r="1" fill="%23d1c7b8" opacity="0.3"/></svg>');
+      padding-bottom: 100px;
+    }
+
+    .message {
+      max-width: 85%;
+      margin-left: auto;
+      background-color: #dcf8c6;
+      padding: 8px 12px;
+      border-radius: 7.5px;
+      border-bottom-right-radius: 2px;
+      word-wrap: break-word;
+      word-break: break-word;
+      position: relative;
+      cursor: pointer;
+      user-select: text;
+    }
+
+    .message img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin-top: 5px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .message-text {
+      line-height: 1.4;
+      font-size: 16px;
+    }
+
+    .input-container {
+      position: fixed;
+      bottom: 12px;
+      left: 0;
+      right: 0;
+      padding: 10px;
+      background: #e5ddd5;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 1001;
+      border-top: 3px solid rgba(0,0,0,0.1);
+      border-bottom: 3.5px solid rgba(0,0,0,0.1);
+    }
+
+    .input-wrapper {
+      flex: 1;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: flex-end;
+      min-height: 40px;
+      max-height: 120px;
+    }
+
+    .message-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      resize: none;
+      background: transparent;
+      min-height: 20px;
+      max-height: 100px;
+      line-height: 1.4;
+    }
+
+    .send-btn, .file-btn {
+      background-color: #128c7e;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      min-width: 40px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover, .file-btn:hover {
+      background-color: #0a6b61;
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+
+    .media-loading {
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      color: #666;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      .input-container {
+        padding-bottom: calc(env(safe-area-inset-bottom, 10px) + 10px);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        font-size: 18px;
+        padding: 12px 15px;
+      }
+
+      .messages-container {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+
+      .header-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      .input-container {
+        padding: 8px;
+      }
+
+      .message img {
+        max-height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>Notes & Tasks</span>
+    <div class="header-buttons">
+      <button class="header-btn" onclick="backupData()">Backup</button>
+      <button class="header-btn" onclick="loadData()">Load</button>
+      <input type="file" id="loadFile" class="hidden-file-input" accept=".json" onchange="handleFileLoad(event)">
+    </div>
+  </div>
+
+  <div class="messages-container" id="messagesContainer"></div>
+
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea 
+        class="message-input" 
+        id="messageInput" 
+        placeholder="Type a message..." 
+        rows="1"
+        oninput="autoResize(this)"
+      ></textarea>
+    </div>
+    <button class="file-btn" onclick="document.getElementById('mediaInput').click()">file</button>
+    <button class="send-btn" onclick="sendMessage()">send</button>
+  </div>
+
+  <input type="file" id="mediaInput" class="hidden-file-input" accept="image/*,.heic,.heif" onchange="handleMediaUpload(event)">
+
+  <script>
+    let messages = [];
+
+    function loadMessages() {
+      const saved = localStorage.getItem('whatsapp-notes');
+      if (saved) {
+        messages = JSON.parse(saved);
+        renderMessages();
+      }
+    }
+
+    function saveMessages() {
+      localStorage.setItem('whatsapp-notes', JSON.stringify(messages));
+    }
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+    }
+
+    function renderMessages() {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+
+    messages.forEach((message, index) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.dataset.index = index;
+
+        if (message.type === 'text') {
+            messageDiv.innerHTML = `<div class="message-text">${escapeHtml(
+                message.content
+            )}</div>`;
+        } else if (message.type === 'image') {
+            if (message.isHeic) {
+                // For HEIC files, show filename and download option
+                messageDiv.innerHTML = `
+                    <div class="message-text">${escapeHtml(message.text || '')}</div>
+                    <div class="heic-placeholder">
+                        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 5px; text-align: center;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">📷</div>
+                            <div style="font-weight: bold; margin-bottom: 5px;">HEIC Image</div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 10px;">${message.fileName}</div>
+                            <button onclick="downloadHeicImage(${index})" style="background: #128c7e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Download</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const img = new Image();
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'media-loading';
+                loadingDiv.textContent = 'Loading image...';
+
+                messageDiv.innerHTML = `<div class="message-text">${escapeHtml(
+                    message.text || ''
+                )}</div>`;
+                messageDiv.appendChild(loadingDiv);
+
+                img.onload = function () {
+                    loadingDiv.remove();
+                    messageDiv.appendChild(img);
+                };
+
+                img.onerror = function () {
+                    loadingDiv.textContent = 'Failed to load image';
+                    loadingDiv.style.color = '#999';
+                };
+
+                img.src = message.content;
+                img.alt = 'Image';
+            }
+        }
+
+        // Attach double-click event to delete message
+        messageDiv.ondblclick = () => {
+            if (confirm('Delete this message?')) {
+                messages.splice(index, 1);
+                saveMessages();
+                renderMessages();
+            }
+        };
+
+        container.appendChild(messageDiv);
+    });
+
+    // Scroll to bottom after rendering
+    container.scrollTop = container.scrollHeight;
+}
+
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+
+      if (text) {
+        messages.push({
+          type: 'text',
+          content: text,
+          timestamp: Date.now()
+        });
+
+        input.value = '';
+        input.style.height = 'auto';
+        saveMessages();
+        renderMessages();
+      }
+    }
+
+    function handleMediaUpload(event) {
+      const file = event.target.files[0];
+      if (!file || !file.type.startsWith('image/') && !file.name.toLowerCase().endsWith('.heic')) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          let { width, height } = img;
+          const maxDim = 1200;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = (height * maxDim) / width;
+              width = maxDim;
+            } else {
+              width = (width * maxDim) / height;
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+          messages.push({
+            type: 'image',
+            content: dataUrl,
+            text: '',
+            timestamp: Date.now()
+          });
+
+          saveMessages();
+          renderMessages();
+        };
+
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    function deleteMessage(index) {
+      messages.splice(index, 1);
+      saveMessages();
+      renderMessages();
+    }
+
+    function backupData() {
+      const dataStr = JSON.stringify(messages, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `notes-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadData() {
+      document.getElementById('loadFile').click();
+    }
+
+    function handleFileLoad(event) {
+      const file = event.target.files[0];
+      if (!file || file.type !== 'application/json') return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data)) {
+            messages = data;
+            saveMessages();
+            renderMessages();
+            alert('Data loaded successfully!');
+          } else {
+            alert('Invalid file format.');
+          }
+        } catch (err) {
+          alert('Error loading file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    window.addEventListener('resize', () => {
+      const container = document.getElementById('messagesContainer');
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    });
+
+    window.addEventListener('orientationchange', () => {
+      const container = document.getElementById('messagesContainer');
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    });
+
+    document.addEventListener('DOMContentLoaded', loadMessages);
+  </script>
+</body>
+</html>
