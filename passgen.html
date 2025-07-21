@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pass Gen</title>
+    <style>
+        body {
+            font-family: Consolas, "Courier New", monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .result {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 16px;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            background-color: #FFFFFF;
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+        @keyframes blink {
+            50% {
+                background-color: #000000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>C:\Users\CMD> Pass Gen</div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        async function generatePassword() {
+            const length = 12;  // Total length of the password
+
+            // Generate a random value to use as input for SHA-256
+            const randomValue = crypto.getRandomValues(new Uint32Array(1))[0].toString();
+            const encoder = new TextEncoder();
+            const data = encoder.encode(randomValue);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hash));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // Define special characters, uppercase letters, lowercase letters, and digits
+            const specialCharacters = "!@#$%^&*_+<>?";
+            const upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+            const digits = "0123456789";
+
+            // Function to select random characters from a string
+            function getRandomChars(str, count) {
+                let result = '';
+                for (let i = 0; i < count; i++) {
+                    result += str[Math.floor(Math.random() * str.length)];
+                }
+                return result;
+            }
+
+            // Function to shuffle characters
+            function shuffleString(str) {
+                return str.split('').sort(() => 0.5 - Math.random()).join('');
+            }
+
+            // Generate the password with a balanced mix of characters
+            let password = '';
+            password += getRandomChars(hashHex, length - 6); // 5 characters from hashHex
+            password += getRandomChars(specialCharacters, 2); // 2 special characters
+            password += getRandomChars(upperCaseLetters, 2);  // 2 uppercase letters
+            password += getRandomChars(lowerCaseLetters, 1);  // 1 lowercase letter
+
+            // Shuffle the characters in the password
+            password = shuffleString(password);
+
+            // Add a hyphen at the beginning and a period at the end of the password
+            password = '-' + password.substring(0, length - 2) + '.';
+
+            // Ensure the password has at least 2 uppercase letters and 2 special characters
+            let uppercaseCount = (password.match(/[A-Z]/g) || []).length;
+            let specialCount = (password.match(/[!@#$%^&*_+<>?]/g) || []).length;
+
+            while (uppercaseCount < 2 || specialCount < 2) {
+                if (uppercaseCount < 2) {
+                    password = password.replace(/[a-z]/, upperCaseLetters[Math.floor(Math.random() * upperCaseLetters.length)]);
+                    uppercaseCount++;
+                }
+                if (specialCount < 2) {
+                    password = password.replace(/[a-z]/, specialCharacters[Math.floor(Math.random() * specialCharacters.length)]);
+                    specialCount++;
+                }
+            }
+
+            document.getElementById('result').textContent = 'C:\\Users\\User> Generated password: ' + password;
+        }
+
+        // Generate password on page load
+        window.onload = generatePassword;
+    </script>
+</body>
+</html>
