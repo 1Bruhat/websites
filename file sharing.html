@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Share</title>
+</head>
+<body>
+    <h1>FILE SHARE</h1>
+
+    <div id="uploadSection">
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">UPLOAD</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="resultSection" style="display:none;">
+        <input type="text" id="linkOutput" size="50" readonly>
+        <button onclick="copyLink()">COPY</button>
+        <br><br>
+        <button onclick="reset()">NEW</button>
+    </div>
+
+    <div id="viewSection" style="display:none;">
+        <p id="fileInfo"></p>
+        <button onclick="downloadFile()">DOWNLOAD</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2V974HNuHi67AmcNHc72XcRlI_S4yE14",
+            authDomain: "project-417ca.firebaseapp.com",
+            projectId: "project-417ca",
+            storageBucket: "project-417ca.firebasestorage.app",
+            messagingSenderId: "340195706646",
+            appId: "1:340195706646:web:275eb76ac9377c6342f237"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const db = getFirestore(app);
+
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const fileId = params.get('f');
+            
+            if (fileId) {
+                document.getElementById('uploadSection').style.display = 'none';
+                loadFile(fileId);
+            }
+        });
+
+        let currentDownloadUrl = '';
+        let currentFileName = '';
+
+        window.uploadFile = async function() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+
+            if (!fileInput.files[0]) {
+                status.textContent = 'No file selected';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            if (file.size > 200 * 1024 * 1024) {
+                status.textContent = 'File too large (max 200MB)';
+                return;
+            }
+
+            status.textContent = 'Uploading...';
+
+            try {
+                const shortId = generateId();
+                const storageRef = ref(storage, `files/${shortId}`);
+                const uploadTask = uploadBytesResumable(storageRef, file);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        status.textContent = `${percent}%`;
+                    },
+                    (error) => {
+                        status.textContent = 'Error: ' + error.message;
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        
+                        await setDoc(doc(db, 'files', shortId), {
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            url: downloadURL,
+                            created: new Date().toISOString()
+                        });
+                        
+                        const baseUrl = window.location.origin + window.location.pathname;
+                        const shortLink = `${baseUrl}?f=${shortId}`;
+                        
+                        document.getElementById('linkOutput').value = shortLink;
+                        document.getElementById('uploadSection').style.display = 'none';
+                        document.getElementById('resultSection').style.display = 'block';
+                    }
+                );
+                
+            } catch (err) {
+                status.textContent = 'Error: ' + err.message;
+            }
+        };
+
+        window.loadFile = async function(fileId) {
+            const viewSection = document.getElementById('viewSection');
+            const fileInfo = document.getElementById('fileInfo');
+            
+            fileInfo.textContent = 'Loading...';
+            viewSection.style.display = 'block';
+
+            try {
+                const docRef = doc(db, 'files', fileId);
+                const docSnap = await getDoc(docRef);
+                
+                if (!docSnap.exists()) {
+                    throw new Error('File not found');
+                }
+                
+                const data = docSnap.data();
+                currentDownloadUrl = data.url;
+                currentFileName = data.name;
+                
+                const sizeMB = (data.size / (1024 * 1024)).toFixed(2);
+                fileInfo.textContent = `${data.name} (${sizeMB} MB)`;
+                
+            } catch (err) {
+                fileInfo.textContent = 'Error: ' + err.message;
+            }
+        };
+
+        window.downloadFile = function() {
+            if (!currentDownloadUrl) return;
+            
+            const a = document.createElement('a');
+            a.href = currentDownloadUrl;
+            a.download = currentFileName;
+            a.target = '_blank';
+            a.click();
+        };
+
+        window.copyLink = function() {
+            const linkOutput = document.getElementById('linkOutput');
+            linkOutput.select();
+            document.execCommand('copy');
+            alert('Copied!');
+        };
+
+        window.reset = function() {
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('status').textContent = '';
+        };
+
+        function generateId() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+    </script>
+</body>
+</html>
