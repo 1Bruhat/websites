@@ -42,6 +42,10 @@
             border-bottom: 1px solid #e5e5ea;
         }
 
+        .mode-selector.hidden {
+            display: none;
+        }
+
         .mode-tabs {
             display: flex;
             background: #f0f0f5;
@@ -75,6 +79,10 @@
             flex-shrink: 0;
         }
 
+        .upload-section.hidden {
+            display: none;
+        }
+
         .upload-section.has-song {
             padding: 12px 30px;
         }
@@ -87,6 +95,10 @@
 
         .youtube-input-container.active {
             display: block;
+        }
+
+        .youtube-input-container.hidden {
+            display: none !important;
         }
 
         .youtube-input {
@@ -207,7 +219,7 @@
 
         .youtube-player-container {
             display: none;
-            padding: 12px 30px;
+            padding: 0 30px 12px 30px;
             flex-shrink: 0;
         }
 
@@ -443,7 +455,7 @@
 <body>
     <div class="container">
         <!-- Mode Selector -->
-        <div class="mode-selector">
+        <div class="mode-selector" id="modeSelector">
             <div class="mode-tabs">
                 <button class="mode-tab active" id="audioTab">Audio File</button>
                 <button class="mode-tab" id="youtubeTab">YouTube</button>
@@ -543,6 +555,7 @@
 
     <script>
         // DOM Elements
+        const modeSelector = document.getElementById('modeSelector');
         const audioTab = document.getElementById('audioTab');
         const youtubeTab = document.getElementById('youtubeTab');
         const uploadSection = document.getElementById('uploadSection');
@@ -680,6 +693,10 @@
             youtubeProgressBar.max = duration;
             addChapterBtn.disabled = false;
             
+            // Hide mode selector and input container
+            modeSelector.classList.add('hidden');
+            youtubeInputContainer.classList.add('hidden');
+            
             // Generate key for YouTube video
             const videoId = ytPlayer.getVideoData().video_id;
             currentSongKey = `youtube_${videoId}`;
@@ -694,12 +711,14 @@
                 youtubePlayIcon.style.display = 'none';
                 youtubePauseIcon.style.display = 'block';
                 startYouTubeUpdateInterval();
-            } else {
+            } else if (event.data === YT.PlayerState.PAUSED) {
                 youtubePlayIcon.style.display = 'block';
                 youtubePauseIcon.style.display = 'none';
             }
             
             if (event.data === YT.PlayerState.ENDED) {
+                youtubePlayIcon.style.display = 'block';
+                youtubePauseIcon.style.display = 'none';
                 stopYouTubeUpdateInterval();
             }
         }
@@ -841,7 +860,8 @@
                 const url = URL.createObjectURL(file);
                 audioPlayer.src = url;
                 
-                // Hide upload button and show song info
+                // Hide mode selector and upload button, show song info
+                modeSelector.classList.add('hidden');
                 uploadBtn.classList.add('hidden');
                 uploadSection.classList.add('has-song');
                 songInfo.classList.add('active');
