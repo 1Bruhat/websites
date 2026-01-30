@@ -395,7 +395,7 @@
             overflow-y: auto;
             min-height: 0;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
+            padding-bottom: 80px;
         }
 
         .empty-chapters {
@@ -616,6 +616,46 @@
         let ytPlayer = null;
         let ytUpdateInterval = null;
         let ytIsSeeking = false;
+
+        // Initialize UI state on page load
+        function initializeUI() {
+            // Show mode selector
+            modeSelector.classList.remove('hidden');
+            
+            // Reset audio mode
+            uploadBtn.classList.remove('hidden');
+            uploadSection.classList.remove('has-song');
+            songInfo.classList.remove('active');
+            uploadSection.style.display = 'block';
+            playerSection.style.display = 'block';
+            
+            // Reset YouTube mode
+            youtubeInputContainer.classList.remove('active', 'hidden');
+            youtubePlayerWrapper.classList.remove('active');
+            youtubeControlsSection.classList.remove('active');
+            
+            // Set audio as default mode
+            audioTab.classList.add('active');
+            youtubeTab.classList.remove('active');
+            currentMode = 'audio';
+            
+            // Reset chapters
+            addChapterBtn.disabled = true;
+            chapters = [];
+            renderChapters();
+            
+            // Clear audio source
+            audioPlayer.src = '';
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            isPlaying = false;
+            
+            // Clear input
+            youtubeInput.value = '';
+        }
+
+        // Call initialize on page load
+        initializeUI();
 
         // Mode switching
         audioTab.addEventListener('click', () => {
