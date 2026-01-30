@@ -217,13 +217,13 @@
             flex-shrink: 0;
         }
 
-        .youtube-player-container {
+        .youtube-player-wrapper {
             display: none;
-            padding: 20px 30px 12px 30px;
+            padding: 20px 30px 0 30px;
             flex-shrink: 0;
         }
 
-        .youtube-player-container.active {
+        .youtube-player-wrapper.active {
             display: block;
         }
 
@@ -232,7 +232,16 @@
             aspect-ratio: 16 / 9;
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 16px;
+        }
+
+        .youtube-controls-section {
+            display: none;
+            padding: 16px 30px 12px 30px;
+            flex-shrink: 0;
+        }
+
+        .youtube-controls-section.active {
+            display: block;
         }
 
         .progress-container {
@@ -518,10 +527,13 @@
             </div>
         </div>
 
-        <!-- YouTube Player Section -->
-        <div class="youtube-player-container" id="youtubePlayerContainer">
+        <!-- YouTube Player Wrapper -->
+        <div class="youtube-player-wrapper" id="youtubePlayerWrapper">
             <div id="youtube-player"></div>
-            
+        </div>
+
+        <!-- YouTube Controls Section -->
+        <div class="youtube-controls-section" id="youtubeControlsSection">
             <div class="progress-container">
                 <div class="time-display">
                     <span id="youtubeCurrentTime">0:00</span>
@@ -564,7 +576,8 @@
         const uploadSection = document.getElementById('uploadSection');
         const youtubeInputContainer = document.getElementById('youtubeInputContainer');
         const playerSection = document.getElementById('playerSection');
-        const youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
+        const youtubePlayerWrapper = document.getElementById('youtubePlayerWrapper');
+        const youtubeControlsSection = document.getElementById('youtubeControlsSection');
         const fileInput = document.getElementById('fileInput');
         const uploadBtn = document.getElementById('uploadBtn');
         const songInfo = document.getElementById('songInfo');
@@ -621,7 +634,8 @@
                 uploadSection.style.display = 'block';
                 youtubeInputContainer.classList.remove('active');
                 playerSection.style.display = 'block';
-                youtubePlayerContainer.classList.remove('active');
+                youtubePlayerWrapper.classList.remove('active');
+                youtubeControlsSection.classList.remove('active');
                 
                 // Pause YouTube if playing
                 if (ytPlayer && ytPlayer.getPlayerState() === 1) {
@@ -635,7 +649,8 @@
                 uploadSection.style.display = 'none';
                 youtubeInputContainer.classList.add('active');
                 playerSection.style.display = 'none';
-                youtubePlayerContainer.classList.add('active');
+                youtubePlayerWrapper.classList.add('active');
+                youtubeControlsSection.classList.add('active');
                 
                 // Pause audio if playing
                 if (audioPlayer.src && !audioPlayer.paused) {
