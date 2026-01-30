@@ -219,7 +219,7 @@
 
         .youtube-player-container {
             display: none;
-            padding: 0 30px 12px 30px;
+            padding: 20px 30px 12px 30px;
             flex-shrink: 0;
         }
 
@@ -232,7 +232,7 @@
             aspect-ratio: 16 / 9;
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .progress-container {
@@ -343,6 +343,7 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
+            overflow: hidden;
         }
 
         .chapters-header {
@@ -384,6 +385,7 @@
             flex: 1;
             overflow-y: auto;
             min-height: 0;
+            -webkit-overflow-scrolling: touch;
         }
 
         .empty-chapters {
@@ -432,23 +434,24 @@
 
         .delete-btn {
             margin-left: auto;
-            background: #ff3b30;
-            color: white;
+            background: transparent;
+            color: #007AFF;
             border: none;
             width: 28px;
             height: 28px;
-            border-radius: 50%;
-            font-size: 20px;
+            font-size: 24px;
+            font-weight: 400;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: opacity 0.2s ease;
             flex-shrink: 0;
+            line-height: 1;
         }
 
         .delete-btn:active {
-            opacity: 0.7;
+            opacity: 0.4;
         }
     </style>
 </head>
