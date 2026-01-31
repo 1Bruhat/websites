@@ -16,7 +16,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
+            background: #000000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,7 +26,7 @@
         }
 
         .container {
-            background: #ffffff;
+            background: #000000;
             width: 100%;
             max-width: 430px;
             height: 100vh;
@@ -37,9 +37,9 @@
 
         .mode-selector {
             padding: 16px 30px 12px 30px;
-            background: #ffffff;
+            background: #000000;
             flex-shrink: 0;
-            border-bottom: 1px solid #e5e5ea;
+            border-bottom: 1px solid #2c2c2e;
         }
 
         .mode-selector.hidden {
@@ -48,7 +48,7 @@
 
         .mode-tabs {
             display: flex;
-            background: #f0f0f5;
+            background: #1c1c1e;
             border-radius: 10px;
             padding: 2px;
             gap: 2px;
@@ -62,20 +62,20 @@
             border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
-            color: #000000;
+            color: #ffffff;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .mode-tab.active {
-            background: #ffffff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: #2c2c2e;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .upload-section {
             padding: 20px 30px 12px 30px;
             text-align: center;
-            background: #ffffff;
+            background: #000000;
             flex-shrink: 0;
         }
 
@@ -162,7 +162,7 @@
         .album-art {
             width: 100px;
             height: 100px;
-            background: #f0f0f5;
+            background: #1c1c1e;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -179,7 +179,7 @@
 
         .album-art .placeholder {
             font-size: 36px;
-            color: #c7c7cc;
+            color: #48484a;
         }
 
         .song-details {
@@ -191,7 +191,7 @@
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 2px;
-            color: #000000;
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -199,12 +199,13 @@
 
         .song-artist {
             font-size: 13px;
-            color: #8e8e93;
+            color: #98989d;
         }
 
         .player-section {
             padding: 12px 30px;
             flex-shrink: 0;
+            background: #000000;
         }
 
         .youtube-player-wrapper {
@@ -244,7 +245,7 @@
             width: 80px;
             height: 100vh;
             padding: 12px 8px;
-            background: #f5f5f7;
+            background: #000000;
             gap: 8px;
         }
 
@@ -288,18 +289,18 @@
         }
 
         .youtube-url-popup-content {
-            background: #ffffff;
+            background: #1c1c1e;
             border-radius: 16px;
             padding: 24px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
         .youtube-url-popup-title {
             font-size: 20px;
             font-weight: 600;
-            color: #000000;
+            color: #ffffff;
             margin-bottom: 16px;
             text-align: center;
         }
@@ -307,12 +308,14 @@
         .youtube-url-popup-input {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e5e5ea;
+            border: 2px solid #2c2c2e;
             border-radius: 12px;
             font-size: 16px;
             margin-bottom: 16px;
             outline: none;
             transition: border-color 0.2s ease;
+            background: #000000;
+            color: #ffffff;
         }
 
         .youtube-url-popup-input:focus {
@@ -340,8 +343,8 @@
         }
 
         .youtube-url-popup-btn.cancel {
-            background: #f0f0f5;
-            color: #000000;
+            background: #2c2c2e;
+            color: #ffffff;
         }
 
         .youtube-url-popup-btn.load {
@@ -350,7 +353,7 @@
         }
 
         .youtube-time-btn {
-            background: #ffffff;
+            background: #1c1c1e;
             border: none;
             width: 64px;
             height: 32px;
@@ -385,14 +388,14 @@
         }
 
         .youtube-chapter-minimal {
-            background: #ffffff;
+            background: #1c1c1e;
             border: none;
             width: 64px;
             min-height: 28px;
             border-radius: 6px;
             font-size: 10px;
             font-weight: 500;
-            color: #000000;
+            color: #ffffff;
             cursor: pointer;
             transition: opacity 0.2s ease;
             padding: 4px 6px;
@@ -433,7 +436,7 @@
 
         .youtube-chapter-number-minimal {
             font-size: 9px;
-            color: #8e8e93;
+            color: #98989d;
         }
 
         .progress-container {
@@ -444,7 +447,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #8e8e93;
+            color: #98989d;
             margin-bottom: 8px;
             font-variant-numeric: tabular-nums;
         }
@@ -452,7 +455,7 @@
         .progress-bar {
             width: 100%;
             height: 4px;
-            background: #e5e5ea;
+            background: #2c2c2e;
             border-radius: 2px;
             cursor: pointer;
             position: relative;
@@ -479,14 +482,14 @@
         .progress-bar::-webkit-slider-runnable-track {
             width: 100%;
             height: 4px;
-            background: linear-gradient(to right, #007AFF 0%, #007AFF var(--progress, 0%), #e5e5ea var(--progress, 0%), #e5e5ea 100%);
+            background: linear-gradient(to right, #007AFF 0%, #007AFF var(--progress, 0%), #2c2c2e var(--progress, 0%), #2c2c2e 100%);
             border-radius: 2px;
         }
 
         .progress-bar::-moz-range-track {
             width: 100%;
             height: 4px;
-            background: #e5e5ea;
+            background: #2c2c2e;
             border-radius: 2px;
         }
 
@@ -538,8 +541,8 @@
         }
 
         .chapters-section {
-            border-top: 1px solid #e5e5ea;
-            padding: 16px 0 0 0;
+            border-top: 1px solid #2c2c2e;
+            padding: 16px 30px 0 30px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -548,7 +551,7 @@
         }
 
         .youtube-controls-section.active .chapters-section {
-            border-top: 1px solid #e5e5ea;
+            border-top: 1px solid #2c2c2e;
             padding: 16px 0 0 0;
             margin-top: 20px;
         }
@@ -564,7 +567,7 @@
         .chapters-title {
             font-size: 18px;
             font-weight: 600;
-            color: #000000;
+            color: #ffffff;
         }
 
         .add-chapter-btn {
@@ -599,7 +602,7 @@
         .empty-chapters {
             text-align: center;
             padding: 40px 20px;
-            color: #8e8e93;
+            color: #98989d;
             font-size: 15px;
         }
 
@@ -608,7 +611,7 @@
             align-items: center;
             gap: 12px;
             padding: 14px 16px;
-            background: #f9f9f9;
+            background: #1c1c1e;
             border-radius: 12px;
             margin-bottom: 8px;
             cursor: pointer;
@@ -616,7 +619,7 @@
         }
 
         .chapter-item:active {
-            background: #f0f0f0;
+            background: #2c2c2e;
         }
 
         .chapter-number {
@@ -636,7 +639,7 @@
         .chapter-time {
             font-size: 15px;
             font-weight: 500;
-            color: #000000;
+            color: #ffffff;
             font-variant-numeric: tabular-nums;
         }
 
@@ -1243,14 +1246,14 @@
             if (ytPlayer) {
                 const current = ytPlayer.getCurrentTime();
                 const duration = ytPlayer.getDuration();
-                ytPlayer.seekTo(Math.min(duration, current + 1), true);
+                ytPlayer.seekTo(Math.min(duration, current + 1), false);
             }
         });
 
         document.getElementById('youtubeBack1').addEventListener('click', () => {
             if (ytPlayer) {
                 const current = ytPlayer.getCurrentTime();
-                ytPlayer.seekTo(Math.max(0, current - 1), true);
+                ytPlayer.seekTo(Math.max(0, current - 1), false);
             }
         });
 
@@ -1295,7 +1298,7 @@
                     isPlaying = true;
                 }
             } else if (currentMode === 'youtube' && ytPlayer) {
-                ytPlayer.seekTo(time, true);
+                ytPlayer.seekTo(time, false);
                 const state = ytPlayer.getPlayerState();
                 if (state !== YT.PlayerState.PLAYING) {
                     ytPlayer.playVideo();
