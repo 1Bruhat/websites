@@ -23,6 +23,7 @@
             align-items: center;
             padding: 0;
             overflow: hidden;
+            overscroll-behavior: none;
         }
 
         .container {
@@ -382,9 +383,12 @@
             flex-direction: column;
             gap: 3px;
             overflow-y: auto;
+            overflow-x: hidden;
             flex: 1;
             min-height: 0;
             padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
 
         .youtube-chapter-minimal {
@@ -594,9 +598,11 @@
         .chapters-list {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             min-height: 0;
             -webkit-overflow-scrolling: touch;
             padding-bottom: 80px;
+            overscroll-behavior: contain;
         }
 
         .empty-chapters {
@@ -750,7 +756,7 @@
         </div>
 
         <!-- Chapters Section -->
-        <div class="chapters-section">
+        <div class="chapters-section" id="audioChaptersSection">
             <div class="chapters-header">
                 <div class="chapters-title">Chapters</div>
                 <button class="add-chapter-btn" id="addChapterBtn" disabled>+ Add</button>
@@ -803,6 +809,7 @@
         const totalTime = document.getElementById('totalTime');
         const addChapterBtn = document.getElementById('addChapterBtn');
         const chaptersList = document.getElementById('chaptersList');
+        const audioChaptersSection = document.getElementById('audioChaptersSection');
         
         // YouTube Elements
         const youtubeInput = document.getElementById('youtubeInput');
@@ -900,6 +907,7 @@
                 uploadSection.style.display = 'block';
                 youtubeInputContainer.classList.remove('active');
                 playerSection.style.display = 'block';
+                audioChaptersSection.style.display = 'flex';
                 youtubePlayerWrapper.classList.remove('active');
                 youtubeControlsSection.classList.remove('active');
                 youtubeUrlPopup.classList.remove('active');
@@ -914,6 +922,7 @@
                 uploadSection.style.display = 'none';
                 youtubeInputContainer.classList.remove('active');
                 playerSection.style.display = 'none';
+                audioChaptersSection.style.display = 'none';
                 
                 // Show popup
                 youtubeUrlPopup.classList.add('active');
@@ -1246,14 +1255,28 @@
             if (ytPlayer) {
                 const current = ytPlayer.getCurrentTime();
                 const duration = ytPlayer.getDuration();
-                ytPlayer.seekTo(Math.min(duration, current + 1), false);
+                const newTime = Math.min(duration, current + 1);
+                ytPlayer.seekTo(newTime, true);
+                // Ensure video continues playing after seek
+                setTimeout(() => {
+                    if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                        ytPlayer.playVideo();
+                    }
+                }, 100);
             }
         });
 
         document.getElementById('youtubeBack1').addEventListener('click', () => {
             if (ytPlayer) {
                 const current = ytPlayer.getCurrentTime();
-                ytPlayer.seekTo(Math.max(0, current - 1), false);
+                const newTime = Math.max(0, current - 1);
+                ytPlayer.seekTo(newTime, true);
+                // Ensure video continues playing after seek
+                setTimeout(() => {
+                    if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                        ytPlayer.playVideo();
+                    }
+                }, 100);
             }
         });
 
@@ -1271,10 +1294,10 @@
 
             if (currentMode === 'youtube') {
                 elements.list.innerHTML = chapters.map((time, index) => `
-                    <button class="youtube-chapter-minimal" onclick="seekToChapter(${time})">
+                    <button class="youtube-chapter-minimal" onclick="event.stopPropagation(); seekToChapter(${time})">
                         <span class="youtube-chapter-number-minimal">#${index + 1}</span>
                         <span>${formatTime(time)}</span>
-                        <button class="youtube-chapter-delete-minimal" onclick="deleteChapter(event, ${index})">×</button>
+                        <button class="youtube-chapter-delete-minimal" onclick="event.stopPropagation(); deleteChapter(event, ${index})">×</button>
                     </button>
                 `).join('');
             } else {
@@ -1282,7 +1305,7 @@
                     <div class="chapter-item" onclick="seekToChapter(${time})">
                         <div class="chapter-number">${index + 1}</div>
                         <div class="chapter-time">${formatTime(time)}</div>
-                        <button class="delete-btn" onclick="deleteChapter(event, ${index})">×</button>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteChapter(event, ${index})">×</button>
                     </div>
                 `).join('');
             }
@@ -1298,11 +1321,14 @@
                     isPlaying = true;
                 }
             } else if (currentMode === 'youtube' && ytPlayer) {
-                ytPlayer.seekTo(time, false);
-                const state = ytPlayer.getPlayerState();
-                if (state !== YT.PlayerState.PLAYING) {
-                    ytPlayer.playVideo();
-                }
+                ytPlayer.seekTo(time, true);
+                // Ensure video plays after seeking
+                setTimeout(() => {
+                    const state = ytPlayer.getPlayerState();
+                    if (state !== YT.PlayerState.PLAYING) {
+                        ytPlayer.playVideo();
+                    }
+                }, 100);
             }
         };
 
