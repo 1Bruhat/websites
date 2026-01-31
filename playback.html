@@ -88,16 +88,6 @@
         }
 
         .youtube-input-container {
-            display: none;
-            padding: 20px 30px;
-            text-align: center;
-        }
-
-        .youtube-input-container.active {
-            display: block;
-        }
-
-        .youtube-input-container.hidden {
             display: none !important;
         }
 
@@ -258,78 +248,6 @@
             gap: 8px;
         }
 
-        .youtube-progress-vertical {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 0;
-        }
-
-        .progress-bar-vertical {
-            -webkit-appearance: slider-vertical;
-            writing-mode: bt-lr;
-            width: 4px;
-            height: 100%;
-            background: #e5e5ea;
-            border-radius: 2px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .progress-bar-vertical::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #007AFF;
-            cursor: pointer;
-        }
-
-        .progress-bar-vertical::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #007AFF;
-            cursor: pointer;
-            border: none;
-        }
-
-        .youtube-time-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .youtube-time-btn {
-            background: #ffffff;
-            border: none;
-            width: 64px;
-            height: 32px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #007AFF;
-            cursor: pointer;
-            transition: opacity 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .youtube-time-btn:active {
-            opacity: 0.5;
-        }
-
-        .youtube-time-display {
-            font-size: 10px;
-            color: #8e8e93;
-            text-align: center;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
         .youtube-add-chapter-minimal {
             background: #007AFF;
             color: white;
@@ -350,6 +268,110 @@
 
         .youtube-add-chapter-minimal:disabled {
             opacity: 0.3;
+        }
+
+        .youtube-url-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .youtube-url-popup.active {
+            display: flex;
+        }
+
+        .youtube-url-popup-content {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .youtube-url-popup-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .youtube-url-popup-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e5ea;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .youtube-url-popup-input:focus {
+            border-color: #007AFF;
+        }
+
+        .youtube-url-popup-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .youtube-url-popup-btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .youtube-url-popup-btn:active {
+            opacity: 0.7;
+        }
+
+        .youtube-url-popup-btn.cancel {
+            background: #f0f0f5;
+            color: #000000;
+        }
+
+        .youtube-url-popup-btn.load {
+            background: #007AFF;
+            color: white;
+        }
+
+        .youtube-time-btn {
+            background: #ffffff;
+            border: none;
+            width: 64px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #007AFF;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .youtube-time-btn:active {
+            opacity: 0.5;
+        }
+
+        .youtube-time-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
         }
 
         .youtube-chapters-minimal {
@@ -711,17 +733,10 @@
 
         <!-- YouTube Controls Section -->
         <div class="youtube-controls-section" id="youtubeControlsSection">
-            <!-- Vertical Progress Bar -->
-            <div class="youtube-progress-vertical">
-                <input type="range" class="progress-bar-vertical" id="youtubeProgressBar" min="0" max="100" value="0" orient="vertical">
-            </div>
-
             <!-- Time Controls -->
             <div class="youtube-time-controls">
-                <div class="youtube-time-display" id="youtubeCurrentTime">0:00</div>
                 <button class="youtube-time-btn" id="youtubeSkip1">+1s</button>
                 <button class="youtube-time-btn" id="youtubeBack1">-1s</button>
-                <div class="youtube-time-display" id="youtubeTotalTime">0:00</div>
             </div>
 
             <!-- Add Chapter Button -->
@@ -739,6 +754,23 @@
             </div>
             <div class="chapters-list" id="chaptersList">
                 <div class="empty-chapters">No chapters yet. Add a chapter at the current time!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube URL Popup -->
+    <div class="youtube-url-popup" id="youtubeUrlPopup">
+        <div class="youtube-url-popup-content">
+            <div class="youtube-url-popup-title">Enter YouTube URL</div>
+            <input 
+                type="text" 
+                class="youtube-url-popup-input" 
+                id="youtubePopupInput" 
+                placeholder="Paste YouTube link here..."
+            >
+            <div class="youtube-url-popup-buttons">
+                <button class="youtube-url-popup-btn cancel" id="popupCancelBtn">Cancel</button>
+                <button class="youtube-url-popup-btn load" id="popupLoadBtn">Load</button>
             </div>
         </div>
     </div>
@@ -772,9 +804,10 @@
         // YouTube Elements
         const youtubeInput = document.getElementById('youtubeInput');
         const loadVideoBtn = document.getElementById('loadVideoBtn');
-        const youtubeProgressBar = document.getElementById('youtubeProgressBar');
-        const youtubeCurrentTime = document.getElementById('youtubeCurrentTime');
-        const youtubeTotalTime = document.getElementById('youtubeTotalTime');
+        const youtubeUrlPopup = document.getElementById('youtubeUrlPopup');
+        const youtubePopupInput = document.getElementById('youtubePopupInput');
+        const popupCancelBtn = document.getElementById('popupCancelBtn');
+        const popupLoadBtn = document.getElementById('popupLoadBtn');
 
         // State
         let chapters = [];
@@ -785,8 +818,6 @@
         
         // YouTube Player
         let ytPlayer = null;
-        let ytUpdateInterval = null;
-        let ytIsSeeking = false;
 
         // Get appropriate chapter elements based on mode
         function getChapterElements() {
@@ -807,6 +838,9 @@
         function initializeUI() {
             // Show mode selector
             modeSelector.classList.remove('hidden');
+            
+            // Hide popup
+            youtubeUrlPopup.classList.remove('active');
             
             // Reset audio mode
             uploadBtn.classList.remove('hidden');
@@ -839,6 +873,7 @@
             
             // Clear input
             youtubeInput.value = '';
+            youtubePopupInput.value = '';
         }
 
         // Call initialize on page load
@@ -864,6 +899,7 @@
                 playerSection.style.display = 'block';
                 youtubePlayerWrapper.classList.remove('active');
                 youtubeControlsSection.classList.remove('active');
+                youtubeUrlPopup.classList.remove('active');
                 
                 // Pause YouTube if playing
                 if (ytPlayer && ytPlayer.getPlayerState() === 1) {
@@ -873,10 +909,13 @@
                 youtubeTab.classList.add('active');
                 audioTab.classList.remove('active');
                 uploadSection.style.display = 'none';
-                youtubeInputContainer.classList.add('active');
+                youtubeInputContainer.classList.remove('active');
                 playerSection.style.display = 'none';
-                youtubePlayerWrapper.classList.add('active');
-                youtubeControlsSection.classList.add('active');
+                
+                // Show popup
+                youtubeUrlPopup.classList.add('active');
+                youtubePopupInput.value = '';
+                youtubePopupInput.focus();
                 
                 // Pause audio if playing
                 if (audioPlayer.src && !audioPlayer.paused) {
@@ -900,9 +939,17 @@
             return match ? match[1] : null;
         }
 
-        // Load YouTube Video
-        loadVideoBtn.addEventListener('click', () => {
-            const url = youtubeInput.value.trim();
+        // Load YouTube Video from popup
+        popupLoadBtn.addEventListener('click', loadYouTubeVideo);
+        
+        youtubePopupInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadYouTubeVideo();
+            }
+        });
+
+        function loadYouTubeVideo() {
+            const url = youtubePopupInput.value.trim();
             const videoId = extractVideoId(url);
             
             if (!videoId) {
@@ -917,7 +964,7 @@
                     videoId: videoId,
                     playerVars: {
                         'playsinline': 1,
-                        'controls': 0,
+                        'controls': 1,
                         'modestbranding': 1,
                         'rel': 0
                     },
@@ -928,76 +975,31 @@
             } else {
                 ytPlayer.loadVideoById(videoId);
             }
+        }
+
+        // Cancel popup
+        popupCancelBtn.addEventListener('click', () => {
+            youtubeUrlPopup.classList.remove('active');
+            // Switch back to audio mode
+            switchMode('audio');
         });
 
         function onPlayerReady(event) {
-            const duration = ytPlayer.getDuration();
-            youtubeTotalTime.textContent = formatTime(duration);
-            youtubeProgressBar.max = duration;
             document.getElementById('youtubeAddChapterBtn').disabled = false;
             
-            // Hide mode selector and input container
+            // Hide mode selector and popup
             modeSelector.classList.add('hidden');
-            youtubeInputContainer.classList.add('hidden');
+            youtubeUrlPopup.classList.remove('active');
+            
+            // Show player and controls
+            youtubePlayerWrapper.classList.add('active');
+            youtubeControlsSection.classList.add('active');
             
             // Generate key for YouTube video
             const videoId = ytPlayer.getVideoData().video_id;
             currentSongKey = `youtube_${videoId}`;
             loadChapters(currentSongKey);
-            
-            // Start update interval
-            startYouTubeUpdateInterval();
         }
-
-        function startYouTubeUpdateInterval() {
-            if (ytUpdateInterval) return;
-            
-            ytUpdateInterval = setInterval(() => {
-                if (ytPlayer && ytPlayer.getCurrentTime && !ytIsSeeking) {
-                    const current = ytPlayer.getCurrentTime();
-                    const duration = ytPlayer.getDuration();
-                    
-                    youtubeProgressBar.value = current;
-                    youtubeCurrentTime.textContent = formatTime(current);
-                }
-            }, 100);
-        }
-
-        function stopYouTubeUpdateInterval() {
-            if (ytUpdateInterval) {
-                clearInterval(ytUpdateInterval);
-                ytUpdateInterval = null;
-            }
-        }
-
-        // YouTube Controls
-        youtubeProgressBar.addEventListener('input', (e) => {
-            ytIsSeeking = true;
-            const time = e.target.value;
-            youtubeCurrentTime.textContent = formatTime(time);
-        });
-
-        youtubeProgressBar.addEventListener('change', (e) => {
-            if (ytPlayer) {
-                ytPlayer.seekTo(e.target.value, true);
-                ytIsSeeking = false;
-            }
-        });
-
-        document.getElementById('youtubeBack1').addEventListener('click', () => {
-            if (ytPlayer) {
-                const current = ytPlayer.getCurrentTime();
-                ytPlayer.seekTo(Math.max(0, current - 1), true);
-            }
-        });
-
-        document.getElementById('youtubeSkip1').addEventListener('click', () => {
-            if (ytPlayer) {
-                const current = ytPlayer.getCurrentTime();
-                const duration = ytPlayer.getDuration();
-                ytPlayer.seekTo(Math.min(duration, current + 1), true);
-            }
-        });
 
         // Local Storage for Chapters
         function saveChapters() {
@@ -1233,6 +1235,22 @@
                 chapters.sort((a, b) => a - b);
                 saveChapters();
                 renderChapters();
+            }
+        });
+
+        // YouTube time controls
+        document.getElementById('youtubeSkip1').addEventListener('click', () => {
+            if (ytPlayer) {
+                const current = ytPlayer.getCurrentTime();
+                const duration = ytPlayer.getDuration();
+                ytPlayer.seekTo(Math.min(duration, current + 1), true);
+            }
+        });
+
+        document.getElementById('youtubeBack1').addEventListener('click', () => {
+            if (ytPlayer) {
+                const current = ytPlayer.getCurrentTime();
+                ytPlayer.seekTo(Math.max(0, current - 1), true);
             }
         });
 
