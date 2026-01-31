@@ -219,29 +219,199 @@
 
         .youtube-player-wrapper {
             display: none;
-            padding: 20px 30px 0 30px;
             flex-shrink: 0;
         }
 
         .youtube-player-wrapper.active {
-            display: block;
+            display: flex;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            left: 80px;
+            background: #000000;
+            align-items: center;
+            justify-content: center;
         }
 
         #youtube-player {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: 12px;
-            overflow: hidden;
+            height: 100vh;
+            width: calc(100vh * 16 / 9);
+            max-width: 100%;
         }
 
         .youtube-controls-section {
             display: none;
-            padding: 16px 30px 12px 30px;
             flex-shrink: 0;
         }
 
         .youtube-controls-section.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            padding: 12px 8px;
+            background: #f5f5f7;
+            gap: 8px;
+        }
+
+        .youtube-progress-vertical {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .progress-bar-vertical {
+            -webkit-appearance: slider-vertical;
+            writing-mode: bt-lr;
+            width: 4px;
+            height: 100%;
+            background: #e5e5ea;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .progress-bar-vertical::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #007AFF;
+            cursor: pointer;
+        }
+
+        .progress-bar-vertical::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #007AFF;
+            cursor: pointer;
+            border: none;
+        }
+
+        .youtube-time-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .youtube-time-btn {
+            background: #ffffff;
+            border: none;
+            width: 64px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #007AFF;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .youtube-time-btn:active {
+            opacity: 0.5;
+        }
+
+        .youtube-time-display {
+            font-size: 10px;
+            color: #8e8e93;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .youtube-add-chapter-minimal {
+            background: #007AFF;
+            color: white;
+            border: none;
+            width: 64px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .youtube-add-chapter-minimal:active {
+            opacity: 0.5;
+        }
+
+        .youtube-add-chapter-minimal:disabled {
+            opacity: 0.3;
+        }
+
+        .youtube-chapters-minimal {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            padding-bottom: 8px;
+        }
+
+        .youtube-chapter-minimal {
+            background: #ffffff;
+            border: none;
+            width: 64px;
+            min-height: 28px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #000000;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            padding: 4px 6px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .youtube-chapter-minimal:active {
+            opacity: 0.5;
+        }
+
+        .youtube-chapter-delete-minimal {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: transparent;
+            color: #007AFF;
+            border: none;
+            width: 14px;
+            height: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .youtube-chapter-delete-minimal:active {
+            opacity: 0.5;
+        }
+
+        .youtube-chapter-number-minimal {
+            font-size: 9px;
+            color: #8e8e93;
         }
 
         .progress-container {
@@ -347,12 +517,18 @@
 
         .chapters-section {
             border-top: 1px solid #e5e5ea;
-            padding: 16px 30px 0 30px;
+            padding: 16px 0 0 0;
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 0;
             overflow: hidden;
+        }
+
+        .youtube-controls-section.active .chapters-section {
+            border-top: 1px solid #e5e5ea;
+            padding: 16px 0 0 0;
+            margin-top: 20px;
         }
 
         .chapters-header {
@@ -535,26 +711,24 @@
 
         <!-- YouTube Controls Section -->
         <div class="youtube-controls-section" id="youtubeControlsSection">
-            <div class="progress-container">
-                <div class="time-display">
-                    <span id="youtubeCurrentTime">0:00</span>
-                    <span id="youtubeTotalTime">0:00</span>
-                </div>
-                <input type="range" class="progress-bar" id="youtubeProgressBar" min="0" max="100" value="0">
+            <!-- Vertical Progress Bar -->
+            <div class="youtube-progress-vertical">
+                <input type="range" class="progress-bar-vertical" id="youtubeProgressBar" min="0" max="100" value="0" orient="vertical">
             </div>
 
-            <div class="controls">
-                <button class="control-btn" id="youtubeBack1">-1s</button>
-                <button class="control-btn play-pause" id="youtubePlayPause">
-                    <svg id="youtubePlayIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    <svg id="youtubePauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                    </svg>
-                </button>
-                <button class="control-btn" id="youtubeSkip1">+1s</button>
+            <!-- Time Controls -->
+            <div class="youtube-time-controls">
+                <div class="youtube-time-display" id="youtubeCurrentTime">0:00</div>
+                <button class="youtube-time-btn" id="youtubeSkip1">+1s</button>
+                <button class="youtube-time-btn" id="youtubeBack1">-1s</button>
+                <div class="youtube-time-display" id="youtubeTotalTime">0:00</div>
             </div>
+
+            <!-- Add Chapter Button -->
+            <button class="youtube-add-chapter-minimal" id="youtubeAddChapterBtn" disabled>+ Add</button>
+
+            <!-- Chapters List -->
+            <div class="youtube-chapters-minimal" id="youtubeChaptersList"></div>
         </div>
 
         <!-- Chapters Section -->
@@ -598,9 +772,6 @@
         // YouTube Elements
         const youtubeInput = document.getElementById('youtubeInput');
         const loadVideoBtn = document.getElementById('loadVideoBtn');
-        const youtubePlayPause = document.getElementById('youtubePlayPause');
-        const youtubePlayIcon = document.getElementById('youtubePlayIcon');
-        const youtubePauseIcon = document.getElementById('youtubePauseIcon');
         const youtubeProgressBar = document.getElementById('youtubeProgressBar');
         const youtubeCurrentTime = document.getElementById('youtubeCurrentTime');
         const youtubeTotalTime = document.getElementById('youtubeTotalTime');
@@ -616,6 +787,21 @@
         let ytPlayer = null;
         let ytUpdateInterval = null;
         let ytIsSeeking = false;
+
+        // Get appropriate chapter elements based on mode
+        function getChapterElements() {
+            if (currentMode === 'youtube') {
+                return {
+                    addBtn: document.getElementById('youtubeAddChapterBtn'),
+                    list: document.getElementById('youtubeChaptersList')
+                };
+            } else {
+                return {
+                    addBtn: addChapterBtn,
+                    list: chaptersList
+                };
+            }
+        }
 
         // Initialize UI state on page load
         function initializeUI() {
@@ -641,6 +827,7 @@
             
             // Reset chapters
             addChapterBtn.disabled = true;
+            document.getElementById('youtubeAddChapterBtn').disabled = true;
             chapters = [];
             renderChapters();
             
@@ -681,8 +868,6 @@
                 // Pause YouTube if playing
                 if (ytPlayer && ytPlayer.getPlayerState() === 1) {
                     ytPlayer.pauseVideo();
-                    youtubePlayIcon.style.display = 'block';
-                    youtubePauseIcon.style.display = 'none';
                 }
             } else {
                 youtubeTab.classList.add('active');
@@ -737,8 +922,7 @@
                         'rel': 0
                     },
                     events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
+                        'onReady': onPlayerReady
                     }
                 });
             } else {
@@ -750,7 +934,7 @@
             const duration = ytPlayer.getDuration();
             youtubeTotalTime.textContent = formatTime(duration);
             youtubeProgressBar.max = duration;
-            addChapterBtn.disabled = false;
+            document.getElementById('youtubeAddChapterBtn').disabled = false;
             
             // Hide mode selector and input container
             modeSelector.classList.add('hidden');
@@ -765,23 +949,6 @@
             startYouTubeUpdateInterval();
         }
 
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                youtubePlayIcon.style.display = 'none';
-                youtubePauseIcon.style.display = 'block';
-                startYouTubeUpdateInterval();
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                youtubePlayIcon.style.display = 'block';
-                youtubePauseIcon.style.display = 'none';
-            }
-            
-            if (event.data === YT.PlayerState.ENDED) {
-                youtubePlayIcon.style.display = 'block';
-                youtubePauseIcon.style.display = 'none';
-                stopYouTubeUpdateInterval();
-            }
-        }
-
         function startYouTubeUpdateInterval() {
             if (ytUpdateInterval) return;
             
@@ -791,8 +958,6 @@
                     const duration = ytPlayer.getDuration();
                     
                     youtubeProgressBar.value = current;
-                    const progress = (current / duration) * 100;
-                    youtubeProgressBar.style.setProperty('--progress', progress + '%');
                     youtubeCurrentTime.textContent = formatTime(current);
                 }
             }, 100);
@@ -806,23 +971,10 @@
         }
 
         // YouTube Controls
-        youtubePlayPause.addEventListener('click', () => {
-            if (!ytPlayer) return;
-            
-            const state = ytPlayer.getPlayerState();
-            if (state === YT.PlayerState.PLAYING) {
-                ytPlayer.pauseVideo();
-            } else {
-                ytPlayer.playVideo();
-            }
-        });
-
         youtubeProgressBar.addEventListener('input', (e) => {
             ytIsSeeking = true;
             const time = e.target.value;
             youtubeCurrentTime.textContent = formatTime(time);
-            const progress = (time / ytPlayer.getDuration()) * 100;
-            youtubeProgressBar.style.setProperty('--progress', progress + '%');
         });
 
         youtubeProgressBar.addEventListener('change', (e) => {
@@ -1063,8 +1215,6 @@
             
             if (currentMode === 'audio' && audioPlayer.src && !isNaN(audioPlayer.currentTime)) {
                 time = audioPlayer.currentTime;
-            } else if (currentMode === 'youtube' && ytPlayer) {
-                time = ytPlayer.getCurrentTime();
             } else {
                 return;
             }
@@ -1075,19 +1225,46 @@
             renderChapters();
         });
 
+        // YouTube chapters
+        document.getElementById('youtubeAddChapterBtn').addEventListener('click', () => {
+            if (currentMode === 'youtube' && ytPlayer) {
+                const time = ytPlayer.getCurrentTime();
+                chapters.push(time);
+                chapters.sort((a, b) => a - b);
+                saveChapters();
+                renderChapters();
+            }
+        });
+
         function renderChapters() {
+            const elements = getChapterElements();
+            
             if (chapters.length === 0) {
-                chaptersList.innerHTML = '<div class="empty-chapters">No chapters yet. Add a chapter at the current time!</div>';
+                if (currentMode === 'youtube') {
+                    elements.list.innerHTML = '';
+                } else {
+                    elements.list.innerHTML = '<div class="empty-chapters">No chapters yet. Add a chapter at the current time!</div>';
+                }
                 return;
             }
 
-            chaptersList.innerHTML = chapters.map((time, index) => `
-                <div class="chapter-item" onclick="seekToChapter(${time})">
-                    <div class="chapter-number">${index + 1}</div>
-                    <div class="chapter-time">${formatTime(time)}</div>
-                    <button class="delete-btn" onclick="deleteChapter(event, ${index})">×</button>
-                </div>
-            `).join('');
+            if (currentMode === 'youtube') {
+                elements.list.innerHTML = chapters.map((time, index) => `
+                    <button class="youtube-chapter-minimal" onclick="seekToChapter(${time})">
+                        <span class="youtube-chapter-number-minimal">#${index + 1}</span>
+                        <span>${formatTime(time)}</span>
+                        <button class="youtube-chapter-delete-minimal" onclick="deleteChapter(event, ${index})">×</button>
+                    </button>
+                `).join('');
+            } else {
+                elements.list.innerHTML = chapters.map((time, index) => `
+                    <div class="chapter-item" onclick="seekToChapter(${time})">
+                        <div class="chapter-number">${index + 1}</div>
+                        <div class="chapter-time">${formatTime(time)}</div>
+                        <button class="delete-btn" onclick="deleteChapter(event, ${index})">×</button>
+                    </div>
+                `).join('');
+            }
         }
 
         window.seekToChapter = (time) => {
@@ -1101,7 +1278,8 @@
                 }
             } else if (currentMode === 'youtube' && ytPlayer) {
                 ytPlayer.seekTo(time, true);
-                if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                const state = ytPlayer.getPlayerState();
+                if (state !== YT.PlayerState.PLAYING) {
                     ytPlayer.playVideo();
                 }
             }
