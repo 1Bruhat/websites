@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DAW</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1d1d1f;
+            min-height: 100vh;
+            padding: 20px;
+            touch-action: pan-y;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .primary {
+            background: #007aff;
+            color: white;
+        }
+
+        .primary:active {
+            background: #0051d5;
+            transform: scale(0.98);
+        }
+
+        .secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .secondary:active {
+            background: #e8e8ed;
+            transform: scale(0.98);
+        }
+
+        .recording {
+            background: #ff3b30 !important;
+        }
+
+        .timeline {
+            margin-top: 20px;
+            background: #f5f5f7;
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .track {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .track-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .track-duration {
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        .track-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .track-controls button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+
+        .delete-btn {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .delete-btn:active {
+            background: #d70015;
+        }
+
+        .waveform {
+            height: 60px;
+            background: #e8e8ed;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .waveform-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007aff 0%, #0051d5 100%);
+            width: 100%;
+        }
+
+        .trim-handle {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: rgba(0, 122, 255, 0.3);
+            cursor: ew-resize;
+            touch-action: none;
+        }
+
+        .trim-handle.left {
+            left: 0;
+            border-left: 3px solid #007aff;
+        }
+
+        .trim-handle.right {
+            right: 0;
+            border-right: 3px solid #007aff;
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #ff3b30;
+            pointer-events: none;
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #86868b;
+            font-size: 15px;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #86868b;
+            min-height: 20px;
+        }
+
+        .dragging {
+            opacity: 0.6;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DAW</h1>
+        
+        <div class="controls">
+            <button id="recordBtn" class="primary">Record</button>
+            <button id="playBtn" class="secondary">Play</button>
+            <button id="stopBtn" class="secondary">Stop</button>
+        </div>
+
+        <div class="timeline" id="timeline">
+            <div class="empty-state">No tracks yet. Tap Record to start.</div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let tracks = [];
+        let isRecording = false;
+        let isPlaying = false;
+        let audioContext;
+        let playingSources = [];
+        let playStartTime = 0;
+        let playOffset = 0;
+
+        const recordBtn = document.getElementById('recordBtn');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const timeline = document.getElementById('timeline');
+        const status = document.getElementById('status');
+
+        // Initialize audio context
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Record audio
+        recordBtn.addEventListener('click', async () => {
+            if (isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.textContent = 'Record';
+                recordBtn.classList.remove('recording');
+                status.textContent = '';
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        
+                        initAudioContext();
+                        const arrayBuffer = await audioBlob.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                        const track = {
+                            id: Date.now(),
+                            name: `Track ${tracks.length + 1}`,
+                            url: audioUrl,
+                            blob: audioBlob,
+                            buffer: audioBuffer,
+                            duration: audioBuffer.duration,
+                            trimStart: 0,
+                            trimEnd: audioBuffer.duration,
+                            position: 0
+                        };
+
+                        tracks.push(track);
+                        renderTracks();
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.textContent = 'Stop Recording';
+                    recordBtn.classList.add('recording');
+                    status.textContent = 'Recording...';
+                } catch (err) {
+                    alert('Microphone access denied');
+                }
+            }
+        });
+
+        // Play all tracks
+        playBtn.addEventListener('click', () => {
+            if (tracks.length === 0) return;
+            
+            initAudioContext();
+            stopPlayback();
+            
+            isPlaying = true;
+            playStartTime = audioContext.currentTime;
+            playOffset = 0;
+
+            tracks.forEach(track => {
+                const source = audioContext.createBufferSource();
+                source.buffer = track.buffer;
+                source.connect(audioContext.destination);
+                
+                const startTime = track.trimStart;
+                const duration = track.trimEnd - track.trimStart;
+                const when = playStartTime + track.position;
+                
+                source.start(when, startTime, duration);
+                playingSources.push(source);
+            });
+
+            status.textContent = 'Playing...';
+        });
+
+        // Stop playback
+        stopBtn.addEventListener('click', stopPlayback);
+
+        function stopPlayback() {
+            playingSources.forEach(source => {
+                try {
+                    source.stop();
+                } catch (e) {}
+            });
+            playingSources = [];
+            isPlaying = false;
+            status.textContent = '';
+        }
+
+        // Render tracks
+        function renderTracks() {
+            if (tracks.length === 0) {
+                timeline.innerHTML = '<div class="empty-state">No tracks yet. Tap Record to start.</div>';
+                return;
+            }
+
+            timeline.innerHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const trackEl = document.createElement('div');
+                trackEl.className = 'track';
+                trackEl.draggable = true;
+                
+                const duration = (track.trimEnd - track.trimStart).toFixed(2);
+                
+                trackEl.innerHTML = `
+                    <div class="track-header">
+                        <div class="track-name">${track.name}</div>
+                        <div class="track-duration">${duration}s</div>
+                    </div>
+                    <div class="waveform">
+                        <div class="waveform-fill"></div>
+                        <div class="trim-handle left" data-track="${track.id}" data-side="left"></div>
+                        <div class="trim-handle right" data-track="${track.id}" data-side="right"></div>
+                    </div>
+                    <div class="track-controls">
+                        <button class="secondary" onclick="moveTrack(${track.id}, -0.1)">← 0.1s</button>
+                        <button class="secondary" onclick="moveTrack(${track.id}, 0.1)">0.1s →</button>
+                        <button class="delete-btn" onclick="deleteTrack(${track.id})">Delete</button>
+                    </div>
+                `;
+                
+                timeline.appendChild(trackEl);
+
+                // Drag to reorder
+                trackEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('trackId', track.id);
+                    trackEl.classList.add('dragging');
+                });
+
+                trackEl.addEventListener('dragend', () => {
+                    trackEl.classList.remove('dragging');
+                });
+
+                trackEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                trackEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedId = parseInt(e.dataTransfer.getData('trackId'));
+                    const draggedIndex = tracks.findIndex(t => t.id === draggedId);
+                    const targetIndex = index;
+                    
+                    if (draggedIndex !== targetIndex) {
+                        const draggedTrack = tracks.splice(draggedIndex, 1)[0];
+                        tracks.splice(targetIndex, 0, draggedTrack);
+                        renderTracks();
+                    }
+                });
+            });
+
+            // Trim handles
+            document.querySelectorAll('.trim-handle').forEach(handle => {
+                let startX, startValue, track;
+                
+                const onMove = (e) => {
+                    e.preventDefault();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const deltaX = clientX - startX;
+                    const deltaTime = (deltaX / 300) * track.duration;
+                    
+                    if (handle.dataset.side === 'left') {
+                        track.trimStart = Math.max(0, Math.min(startValue + deltaTime, track.trimEnd - 0.1));
+                    } else {
+                        track.trimEnd = Math.min(track.duration, Math.max(startValue + deltaTime, track.trimStart + 0.1));
+                    }
+                    
+                    renderTracks();
+                };
+                
+                const onEnd = () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                };
+                
+                const onStart = (e) => {
+                    e.preventDefault();
+                    track = tracks.find(t => t.id === parseInt(handle.dataset.track));
+                    startX = e.touches ? e.touches[0].clientX : e.clientX;
+                    startValue = handle.dataset.side === 'left' ? track.trimStart : track.trimEnd;
+                    
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onEnd);
+                    document.addEventListener('touchmove', onMove);
+                    document.addEventListener('touchend', onEnd);
+                };
+                
+                handle.addEventListener('mousedown', onStart);
+                handle.addEventListener('touchstart', onStart);
+            });
+        }
+
+        // Move track position in timeline
+        window.moveTrack = (id, offset) => {
+            const track = tracks.find(t => t.id === id);
+            if (track) {
+                track.position = Math.max(0, track.position + offset);
+                renderTracks();
+            }
+        };
+
+        // Delete track
+        window.deleteTrack = (id) => {
+            tracks = tracks.filter(t => t.id !== id);
+            renderTracks();
+        };
+
+        // Initial render
+        renderTracks();
+    </script>
+</body>
+</html>
+
